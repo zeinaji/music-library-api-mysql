@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const ArtistModel = require('./models/artist');
+ const ArtistModel = require('./models/artist');
 // const AlbumModel = require('./models/album');
 // const SongModel = require('./models/song');
 
@@ -13,7 +13,7 @@ const setupDatabase = () => {
     logging: false,
   });
 
-  const Artist = ArtistModel(sequelize, Sequelize);
+const Artist = ArtistModel(sequelize, Sequelize);
  // const Album = AlbumModel(sequelize, Sequelize);
  // const Song = SongModel(sequelize, Sequelize);
 
@@ -24,5 +24,7 @@ const setupDatabase = () => {
   //  Song,
   };
 };
+
+
 
 module.exports = setupDatabase();
