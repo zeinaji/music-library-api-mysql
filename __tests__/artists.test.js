@@ -92,7 +92,7 @@ describe('/artists', () => {
     });
 
     describe('PATCH /artists/:artistId', () => {
-      xit('updates artist genre by id', (done) => {
+      it('updates artist genre by id', (done) => {
         const artist = artists[0];
         request(app)
           .patch(`/artists/${artist.id}`)
@@ -101,12 +101,28 @@ describe('/artists', () => {
             expect(res.status).to.equal(200);
             Artist.findByPk(artist.id, { raw: true }).then((updatedArtist) => {
               expect(updatedArtist.genre).to.equal('Psychedelic Rock');
+              expect(updatedArtist.name).to.equal(artist.name);
               done();
             });
           });
       });
 
-      xit('returns a 404 if the artist does not exist', (done) => {
+      it('updates the artists name by id', (done) => {
+        const artist = artists[0];
+        request(app)
+        .patch(`/artists/${artist.id}`)
+        .send({name: 'The Smiths'})
+        .then((res) => {
+          expect(res.status).to.equal(200);
+          Artist.findByPk(artist.id, {raw: true}).then(updatedArtist => {
+            expect(updatedArtist.name).to.equal('The Smiths');
+            expect(updatedArtist.genre).to.equal(artist.genre);
+            done();
+          });
+        });
+      });
+
+      it('returns a 404 if the artist does not exist', (done) => {
         request(app)
           .patch('/artists/12345')
           .send({ genre: 'Psychedelic Rock' })
@@ -119,7 +135,7 @@ describe('/artists', () => {
     });
 
     describe('DELETE /artists/:artistId', () => {
-      xit('deletes artist record by id', (done) => {
+      it('deletes artist record by id', (done) => {
         const artist = artists[0];
         request(app)
           .delete(`/artists/${artist.id}`)
@@ -132,7 +148,7 @@ describe('/artists', () => {
           });
       });
 
-      xit('returns a 404 if the artist does not exist', (done) => {
+      it('returns a 404 if the artist does not exist', (done) => {
         request(app)
           .delete('/artists/12345')
           .then((res) => {

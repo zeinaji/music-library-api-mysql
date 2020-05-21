@@ -30,7 +30,7 @@ describe('/albums', () => {
   });
 
   describe('POST /artists/:artistId/albums', () => {
-    xit('creates a new album for a given artist', (done) => {
+    it('creates a new album for a given artist', (done) => {
       request(app)
         .post(`/artists/${artist.id}/albums`)
         .send({
@@ -49,7 +49,7 @@ describe('/albums', () => {
         });
     });
 
-    xit('returns a 404 and does not create an album if the artist does not exist', (done) => {
+    it('returns a 404 and does not create an album if the artist does not exist', (done) => {
       request(app)
         .post('/artists/1234/albums')
         .send({
@@ -65,6 +65,52 @@ describe('/albums', () => {
             done();
           });
         });
+    });
+  });
+
+  describe('with albums in the database', () => {
+    let albums;
+    beforeEach((done) => {
+      Promise.all([
+        Album.create({ name: 'The Slow Rush', year: 2020 }),
+        Album.create({ name: 'Currents', year: 2019 }),
+        Album.create({ name: 'Lonerism', year: 2012 }),
+      ]).then((documents) => {
+        albums = documents;
+        const setArtistRecords = albums.map(linkedAlbum => linkedAlbum.setArtist(artist));
+        Promise.all(setArtistRecords).then(() => done());
+      });
+    });
+
+
+
+    describe('GET /artists/:artistId/albums', () => {
+      it('gets all albums of an artist', (done) => {
+        request(app)
+          .get(`/artists/${artist.id}/albums`)
+          .then(res => {
+            expect(res.status).to.equal(200);
+            expect(res.body.length).to.equal(3);
+            res.body.forEach(album => {
+
+              const expected = albums.find(a => a.id === album.id);
+              expect(album.name).to.equal(expected.name);
+              expect(album.year).to.equal(expected.year);
+              expect(album.artistId).to.equal(artist.id);
+            });
+            done();
+          });
+      });
+
+      it('returns a 404 if the artist does not exist', (done) => {
+        request(app)
+          .get('/artists/12345/albums')
+          .then((res) => {
+            expect(res.status).to.equal(404);
+            expect(res.body.error).to.equal('The artist could not be found.');
+            done();
+          });
+      });
     });
   });
 });
